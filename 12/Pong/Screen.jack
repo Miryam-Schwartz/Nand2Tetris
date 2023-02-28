@@ -1,0 +1,228 @@
+// This file is part of nand2tetris, as taught in The Hebrew University, and
+// was written by Aviv Yaish. It is an extension to the specifications given
+// [here](https://www.nand2tetris.org) (Shimon Schocken and Noam Nisan, 2017),
+// as allowed by the Creative Common Attribution-NonCommercial-ShareAlike 3.0
+// Unported [License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 256 rows (indexed 0..255, top to bottom)
+ * of 512 pixels each (indexed 0..511, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+
+		static int screen;
+		static boolean color; //true for black, false for white
+		
+        /** Initializes the Screen. */
+        function void init() {
+			let screen = 16384;
+			let color = true;
+			return;
+        }
+
+        /** Erases the entire screen. */
+        function void clearScreen() {
+			do Screen.setColor(false);
+			do Screen.drawRectangle(0, 0, 511, 255);
+			do Screen.setColor(true);
+		/**	var int i;
+			let i = 0;
+			while(i < 8192){
+				do Memory.poke(screen + i, false);
+			}
+		**/
+			return;
+        }
+
+        /** Sets the current color, to be used for all subsequent drawXXX commands.
+         *    Black is represented by true, white by false. */
+        function void setColor(boolean b) {
+			let color = b;
+			return;
+        }
+
+        /** Draws the (x,y) pixel, using the current color. */
+        function void drawPixel(int x, int y) {
+            // For this function, you will need to calculate the value x%16.
+            // It should be calculated quickly without using multiplication or
+            // division, using exactly one basic math/logical operation.
+            // In addition, calculating 16384 + y * 32 + x/16 should not use
+            // division or multiplication.
+            // Pseudocode:
+            // 1. Compute the RAM address where the (x,y) pixel is
+            //    represented: 16384 + (32*y) + (x/16).
+            // 2. Use Memory.peek to get the 16-bit value of this address
+            // 3. Use some bitwise operation to set (only) the bit that corresponds
+            //    to the pixel to the current color.
+            // 4. Use Memory.poke to write the modified 16-bit value to the RAM
+            // address.
+			
+			var int address, val, xMod16, mask;
+			let address = screen + ^^^^^y + ####x;
+			let val = Memory.peek(address);
+			let xMod16 = x & 15;
+			let mask = Math.twoToThe(xMod16);
+			if(color){
+				let val = val | mask;
+			}
+			else{
+				let val = val & (~mask);
+			}
+			do Memory.poke(address, val);
+			return;
+        }
+		
+		function void drawHLine(int x1, int x2, int y){
+		
+			//asume x1 < x2
+			
+			var int i, dx, firstAddrees, lastAddrees, ptr;
+			
+			if (x1 = 0 & x2 = 511){
+				
+				let firstAddrees = screen + ^^^^^y + ####x1;
+				let lastAddrees = screen + ^^^^^y + ####x2;
+				
+				let ptr = firstAddrees;
+				while (~(ptr > lastAddrees)){
+					do Memory.poke(ptr, color);
+					let ptr = ptr + 1;
+				}
+				return;
+			}
+			
+			let dx = x2 - x1;
+			
+			while( ~(i > dx) ){
+				do Screen.drawPixel(x1 + i, y);
+				let i = i+1;
+			}
+					
+			return;
+		}
+
+        /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+        function void drawLine(int x1, int y1, int x2, int y2) {
+			// The case where y1 == y2 can be implemented efficiently by
+            // trying to draw as many pixels as possible in a single assignment,
+            // similarly to Fill in project 4.
+			//
+            // The case where x1 != x2 and y1 != y2 should be implemented without
+            // multiplication or division.
+            // Pseudocode:
+            // 1. let x = x1, y = y1, a = 0, b = 0, diff = 0
+            // 2. Compute dx and dy
+            // 3. while ((a <= dx) and (b <= dy))
+            // 4.   do drawPixel(x+a, y+b)
+            // 5.   if (diff < 0) { let a=a+1, diff=diff+dy }
+            // 6.   else          { let b=b+1, diff=diff-dx }
+			
+			var int temp;
+			
+			if (x2 < x1){
+				let temp = x1;
+				let x1 = x2;
+				let x2 = temp;
+				let temp = y1;
+				let y1 = y2;
+				let y2 = temp;
+			}
+      
+            if (y1 = y2){
+				do Screen.drawHLine(x1, x2, y1);
+				return;
+			}
+			
+			if (y2 < y1){
+				do Screen.drawURLine(x1, y1, x2, y2);
+				return;
+			}
+			
+			do Screen.drawDRLine(x1, y1, x2, y2);
+			return;
+        }
+		
+		function void drawDRLine(int x1, int y1, int x2, int y2) 
+		{
+			var int x, y, a, b, diff, dx, dy;
+			
+			let x = x1;
+			let y = y1;
+			let a = 0;
+			let b = 0;
+			let diff = 0;
+			let dx = x2-x1;
+			let dy = y2-y1;
+			
+			while((~(a>dx)) & (~(b>dy)) ){
+				do Screen.drawPixel(x+a, y+b);
+				if (diff < 0) {
+					let a=a+1;
+					let diff=diff+dy;
+				}
+				else{
+					let b=b+1;
+					let diff=diff-dx;
+				}
+			}
+			return;
+		}
+		
+		
+		function void drawURLine(int x1, int y1, int x2, int y2) 
+		{
+			var int x, y, a, b, diff, dx, dy;
+			
+			let x = x1;
+			let y = y1;
+			let a = 0;
+			let b = 0;
+			let diff = 0;
+			let dx = x2-x1;
+			let dy = Math.abs(y2-y1);
+			
+			while((~(a>dx)) & (~(b>dy)) ){
+				do Screen.drawPixel(x+a, y-b);
+				if (diff < 0) {
+					let a=a+1;
+					let diff=diff+dy;
+				}
+				else{
+					let b=b+1;
+					let diff=diff-dx;
+				}
+			}
+			return;
+		}
+
+        /** Draws a filled rectangle whose top left corner is (x1, y1)
+         * and bottom right corner is (x2,y2), using the current color. */
+        function void drawRectangle(int x1, int y1, int x2, int y2) {
+			while(~(y1 > y2)){
+				do Screen.drawLine(x1, y1, x2, y1);
+				let y1 = y1 + 1;
+			}
+			return;
+        }
+
+        /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+        function void drawCircle(int x, int y, int r) {
+            // This can be implemented efficiently by drawing multiple lines at
+            // each iteration. You can use multiplication and sqrt.
+            // Pseudocode:
+            // 1. for (dy = -r ... r)
+            // 2.   let halfWidth = sqrt(r*r - dy*dy)
+            // 3.   do drawLine(x-halfWidth, y+dy, x+halfWidth, y+dy)
+			
+			var int dy, halfWidth;
+			let dy = -r;
+			while ((dy < r) | (dy = r)){
+				let halfWidth = Math.sqrt((r*r) - (dy*dy));
+				do Screen.drawLine(x-halfWidth, y+dy, x+halfWidth, y+dy);
+				let dy = dy + 1;
+			}
+			return;
+        }
+}

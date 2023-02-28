@@ -1,0 +1,37 @@
+//**Edited by Miryam**
+
+/**
+ * Returns 1 iif load has to be 1.
+ */
+
+CHIP LoadToPC {
+
+    IN  Ccommand, j1, j2, j3, zr, ng;      
+
+    OUT out;
+
+    PARTS:
+    
+	And(a=zr, b=j2, out=zrAndj2);
+	
+	And(a=ng, b=j1, out=ngAndj1);
+	
+	Or(a=zrAndj2, b=ngAndj1, out=negativeOrZero);
+	
+	Or(a=zr, b=ng, out=zrOrNg);
+	
+	Not(in=zrOrNg, out=notZrOrNg);
+	
+	And(a=notZrOrNg, b=j3, out=positive);
+	
+	Or(a=negativeOrZero, b=positive, out=negativeOrZeroOrPositive);
+	
+	And(a=j1, b=j2, out=j1AndJ2);
+	
+	And(a=j1AndJ2, b=j3, out=unConditinalJump);
+	
+	Or(a=negativeOrZeroOrPositive, b=unConditinalJump, out=tempout);
+	
+	And(a=Ccommand, b=tempout, out=out);
+	
+}

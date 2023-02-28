@@ -1,0 +1,47 @@
+// Written by Itai Hajaj, Nand 2022 semester A, Itai.Hajaj@huji.mail.ac.il
+/*
+Instruction:
+With this test you could see whether your compiler chose correct characters code
+You should run the program and check manually whether
+your compiled code printed the correctly characters
+Note: there might be more special character that are not written here  - i.e might not
+takes care of all characters.
+Should print in the end: "End of test".
+*/
+
+class Main {
+	function void main() {
+		var String abc, ABC, numbers, special, empty_string;
+		let abc = "a b c d e f g h i j k l m n o p q r s t u v w x y z";
+		let ABC = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z";
+		let numbers = "0 1 2 3 4 5 6 7 8 9";
+		let special = "! @ # $ % ^ & * ( ) - _ = + , . ; / \\ ~  [ ] { } | ";
+		let empty_string = "";
+        do Output.printString("Prints a-z: ");
+        do Output.println();
+        do Output.printString(abc);
+        do Output.println();
+        do Output.println();
+        do Output.printString("Prints A-Z: ");
+        do Output.println();
+        do Output.printString(ABC);
+        do Output.println();
+        do Output.println();
+        do Output.printString("Prints numbers: ");
+        do Output.println();
+        do Output.printString(numbers);
+        do Output.println();
+        do Output.println();
+        do Output.printString("Prints Special chars: ");
+        do Output.println();
+        do Output.printString(special);
+        do Output.println();
+        do Output.println();
+        do Output.printString("Prints empty string: ");
+        do Output.println();
+        do Output.printString(empty_string);
+        do Output.printString("End of test");
+        do Output.println();
+		return;
+		}
+}
